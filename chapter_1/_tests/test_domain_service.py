@@ -1,12 +1,23 @@
-
-
+import pytest
 from chapter_1.domain_service import allocate
 from chapter_1.model import Batch, OrderLine
+from datetime import datetime, timedelta
 
+@pytest.fixture
+def today():
+    return datetime.today()
 
-def test_prefers_current_stock_batches_to_shipments():
+@pytest.fixture
+def tomorrow():
+    return datetime.today() + timedelta(1)
+
+@pytest.fixture
+def later():
+    return datetime.today() + timedelta(7)
+
+def test_prefers_current_stock_batches_to_shipments(tomorrow):
     in_stock_batch = Batch('in-stock-batch', "RETRO CLOCK", 100, eta=None)
-    shipment_batch = Batch('in-stock-batch', "RETRO CLOCK", 100, eta='tomorrow')
+    shipment_batch = Batch('in-stock-batch', "RETRO CLOCK", 100, eta=tomorrow)
     line = OrderLine('oref', "RETRO CLOCK", 10)
 
     allocate(line, [in_stock_batch, shipment_batch])
@@ -14,10 +25,10 @@ def test_prefers_current_stock_batches_to_shipments():
     assert in_stock_batch.avaiable_quantity == 90
     assert shipment_batch.avaiable_quantity == 100
 
-def test_prefers_earlier_batches():
-    earliest = Batch('speedy-batch', "MINIMALIST-SPOON", 100, eta='today')
-    medium = Batch('normal-batch', "MINIMALIST-SPOON", 100, eta='tomorrow')
-    latest = Batch('slow-batch', "MINIMALIST-SPOON", 100, eta='later')
+def test_prefers_earlier_batches(today, tomorrow, later):
+    earliest = Batch('speedy-batch', "MINIMALIST-SPOON", 100, eta=today)
+    medium = Batch('normal-batch', "MINIMALIST-SPOON", 100, eta=tomorrow)
+    latest = Batch('slow-batch', "MINIMALIST-SPOON", 100, eta=later)
     line = OrderLine('order1', "MINIMALIST-SPOON", 10)
 
 
@@ -27,9 +38,9 @@ def test_prefers_earlier_batches():
     assert medium.avaiable_quantity == 100
     assert latest.avaiable_quantity == 100
 
-def test_returns_allocate_batch_ref():
+def test_returns_allocate_batch_ref(tomorrow):
     in_stock_batch = Batch('in-stock-batch', "HIGHBROW-POSTER", 100, eta=None)
-    shipment_batch = Batch('in-stock-batch', "HIGHBROW-POSTER", 100, eta='tomorrow')
+    shipment_batch = Batch('in-stock-batch', "HIGHBROW-POSTER", 100, eta=tomorrow)
     line = OrderLine('oref', "HIGHBROW-POSTER", 10)
 
     allocation = allocate(line, [in_stock_batch, shipment_batch])
