@@ -2,6 +2,9 @@ from dataclasses import dataclass
 from typing import Optional
 from typing import Set
 from datetime import date
+from datetime import datetime
+from enum import Enum 
+
 
 @dataclass(frozen=True)
 class OrderLine():
@@ -37,3 +40,10 @@ class Batch():
     def can_allocate(self, line: OrderLine):
 
         return self.sku == line.sku and self.avaiable_quantity >= line.qty
+    
+    def __gt__(self, other):
+        if self.eta is None:
+            return False
+        if other.eta is None:
+            return True
+        return self.eta > other.eta
