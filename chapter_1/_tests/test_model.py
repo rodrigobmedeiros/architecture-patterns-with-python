@@ -1,6 +1,9 @@
+
 from datetime import date
 from chapter_1.model import Batch
 from chapter_1.model import OrderLine
+
+
 
 def make_batch_and_line(sku, batch_qty, line_qty):
 
@@ -43,5 +46,4 @@ def test_allocation_is_idempontent():
     batch.allocate(line)
     assert batch.avaiable_quantity == 18
 
-def test_raises_out_of_stock_exception_if_cannot_allocate(today):
-    ...
+
